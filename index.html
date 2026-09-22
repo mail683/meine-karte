@@ -371,12 +371,17 @@ const ort =
 
 if (ort === 'portierhaus' && portierhausMarker) {
 
-  map.flyTo({
-    center: [8.45896341282276, 47.18558563679696],
-    zoom: 17
+  map.once('load', () => {
+
+    map.flyTo({
+      center: [8.45896341282276, 47.18558563679696],
+      zoom: 17
+    });
+
+    portierhausMarker.togglePopup();
+
   });
 
-  portierhausMarker.togglePopup();
 }
   
     /*
