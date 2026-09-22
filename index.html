@@ -244,95 +244,90 @@ const standorte = [
   {
     name: 'Fabrikstrasse 5',
     adresse: 'Fabrikstrasse 5, 6330 Cham',
-    bild: 'Fabrikstrasse 5.jpeg'
+    bild: 'Fabrikstrasse 5.jpeg',
+    koordinaten: [8.45810603980665, 47.18514502110924]
   },
   {
     name: 'Portierhaus',
     adresse: 'Papieriplatz 2, 6330 Cham',
-    bild: 'Portierhaus Papieriplatz 2.jpg'
+    bild: 'Portierhaus Papieriplatz 2.jpg',
+    koordinaten: [8.45896341282276, 47.18558563679696]
   },
   {
     name: 'Kesselhaus',
     adresse: 'Papieriplatz 4, 6330 Cham',
-    bild: 'Kesselhaus Papieriplatz 4.jpeg'
+    bild: 'Kesselhaus Papieriplatz 4.jpeg',
+    koordinaten: [8.458113653298595, 47.18564062827952]
   }
 ];
 
 
-async function festeStandorteLaden() {
+standorte.forEach(standort => {
 
-  for (const standort of standorte) {
+  const markerElement =
+    document.createElement('div');
 
-    try {
-
-      const url =
-        'https://nominatim.openstreetmap.org/search' +
-        '?format=json' +
-        '&limit=1' +
-        '&countrycodes=ch' +
-        '&q=' +
-        encodeURIComponent(standort.adresse);
-
-      const response = await fetch(url);
-      const result = await response.json();
-
-      if (!result.length) continue;
-
-      const lng = parseFloat(result[0].lon);
-      const lat = parseFloat(result[0].lat);
-
-      const markerElement = document.createElement('div');
-      markerElement.className = 'luxury-marker';
-
-      new maplibregl.Marker({
-        element: markerElement
-      })
-        .setLngLat([lng, lat])
-        .setPopup(
-          new maplibregl.Popup({
-            offset: 22,
-            closeButton: false
-          }).setHTML(`
-            <div style="width:220px">
-
-              <img
-                src="${standort.bild}"
-                alt="${standort.name}"
-                style="
-                  width:100%;
-                  height:135px;
-                  object-fit:cover;
-                  display:block;
-                  margin-bottom:14px;
-                "
-              >
-
-              <div class="location-title">
-                ${standort.name.toUpperCase()}
-              </div>
-
-              <div class="location-address">
-                ${standort.adresse}
-              </div>
-
-            </div>
-          `)
-        )
-        .addTo(map);
-    }
-
-    catch (error) {
-      console.error(
-        'Standort konnte nicht geladen werden:',
-        standort.adresse
-      );
-    }
-  }
-}
-
-festeStandorteLaden();
+  markerElement.className =
+    'luxury-marker';
 
 
+  new maplibregl.Marker({
+    element: markerElement
+  })
+    .setLngLat(standort.koordinaten)
+    .setPopup(
+      new maplibregl.Popup({
+        offset: 22,
+        closeButton: false,
+        maxWidth: '280px'
+      }).setHTML(`
+        <div style="width:220px">
+
+          <img
+            src="${standort.bild}"
+            alt="${standort.name}"
+            style="
+              width:100%;
+              height:135px;
+              object-fit:cover;
+              display:block;
+              margin-bottom:14px;
+            "
+          >
+
+          <div class="location-title">
+            ${standort.name.toUpperCase()}
+          </div>
+
+          <div class="location-address">
+            ${standort.adresse}
+          </div>
+
+        </div>
+      `)
+    )
+    .addTo(map);
+
+});
+
+
+/*
+  Karte auf die drei Standorte ausrichten
+*/
+
+const bounds =
+  new maplibregl.LngLatBounds();
+
+standorte.forEach(standort => {
+  bounds.extend(standort.koordinaten);
+});
+
+map.fitBounds(bounds, {
+  padding: 100,
+  maxZoom: 16
+});
+
+  
     /*
       Adresssuche
     */
