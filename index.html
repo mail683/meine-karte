@@ -27,13 +27,14 @@
     #map {
       position: absolute;
       inset: 0;
+      z-index: 1;
     }
 
     /* Suchfeld */
 
     .search-box {
       position: absolute;
-      z-index: 10;
+      z-index: 1000;
       top: 24px;
       left: 50%;
       transform: translateX(-50%);
@@ -81,7 +82,7 @@
 
     #results {
       position: absolute;
-      z-index: 11;
+      z-index: 1001;
 
       top: 78px;
       left: 50%;
