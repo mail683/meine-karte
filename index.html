@@ -3,81 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Standorte</title>
 
   <link
     href="https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.css"
     rel="stylesheet"
   >
-
   <script src="https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.js"></script>
 
   <style>
-    html, body {
+    html, body, #map {
       margin: 0;
-      padding: 0;
       width: 100%;
       height: 100%;
-      background: #111111;
+    }
+
+    body {
+      background: #11110f;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
     }
 
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Elegante Navigation */
+    /* Navigation */
     .maplibregl-ctrl-group {
-      background: rgba(20, 20, 20, 0.92) !important;
-      border: 1px solid rgba(210, 190, 150, 0.25);
-      box-shadow: none !important;
+      background: rgba(24, 23, 20, 0.94) !important;
+      border: 1px solid rgba(202, 174, 120, 0.28);
+      box-shadow: 0 8px 25px rgba(0,0,0,.25) !important;
     }
 
     .maplibregl-ctrl-group button {
       filter: invert(1);
-      opacity: 0.75;
+      opacity: .72;
     }
 
-    /* Eigener Standort-Marker */
+    /* Champagnerfarbener Standort */
     .luxury-marker {
-      width: 18px;
-      height: 18px;
-      background: #c8aa72;
-      border: 3px solid #f1e5cf;
+      width: 14px;
+      height: 14px;
+      background: #caae78;
+      border: 2px solid #f0e3c7;
       border-radius: 50%;
       box-shadow:
-        0 0 0 6px rgba(200, 170, 114, 0.16),
-        0 4px 18px rgba(0, 0, 0, 0.55);
+        0 0 0 6px rgba(202,174,120,.14),
+        0 4px 18px rgba(0,0,0,.65);
       cursor: pointer;
     }
 
     /* Popup */
     .maplibregl-popup-content {
-      background: rgba(20, 20, 20, 0.96);
-      color: #f2eee7;
-      border: 1px solid rgba(200, 170, 114, 0.35);
-      border-radius: 4px;
+      background: rgba(22,21,19,.97);
+      color: #e8e3da;
+      border: 1px solid rgba(202,174,120,.4);
+      border-radius: 3px;
       padding: 18px 22px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-    }
-
-    .maplibregl-popup-tip {
-      border-top-color: #141414 !important;
+      box-shadow: 0 14px 35px rgba(0,0,0,.5);
     }
 
     .location-title {
-      font-size: 16px;
-      letter-spacing: 1px;
+      color: #caae78;
+      font-size: 15px;
+      letter-spacing: 2px;
       margin-bottom: 8px;
-      color: #d4ba86;
     }
 
     .location-address {
+      color: #d2cec5;
       font-size: 13px;
       line-height: 1.6;
-      color: #d5d2cc;
     }
   </style>
 </head>
@@ -89,14 +80,9 @@
 <script>
   const map = new maplibregl.Map({
     container: 'map',
-
-    /* Dunkler Kartenstil */
-    style: 'https://tiles.openfreemap.org/styles/dark',
-
-    /* Startpunkt Zürich */
+    style: 'https://tiles.openfreemap.org/styles/liberty',
     center: [8.5417, 47.3769],
-
-    zoom: 11
+    zoom: 10.5
   });
 
   map.addControl(
@@ -104,28 +90,107 @@
     'top-right'
   );
 
-  /* Beispiel-Standort */
-  const markerElement = document.createElement('div');
-  markerElement.className = 'luxury-marker';
+  /*
+    Sobald die Karte geladen ist, färben wir
+    die vorhandenen Ebenen in unseren Luxury-Stil.
+  */
+  map.on('load', () => {
 
-  new maplibregl.Marker({
-    element: markerElement
-  })
-    .setLngLat([8.5417, 47.3769])
-    .setPopup(
-      new maplibregl.Popup({
-        offset: 20,
-        closeButton: false
-      })
-      .setHTML(`
-        <div class="location-title">ZÜRICH</div>
-        <div class="location-address">
-          Dein Standort<br>
-          Zürich
-        </div>
-      `)
-    )
-    .addTo(map);
+    const layers = map.getStyle().layers;
+
+    layers.forEach(layer => {
+      try {
+
+        /* Flächen */
+        if (layer.type === 'background') {
+          map.setPaintProperty(
+            layer.id,
+            'background-color',
+            '#151513'
+          );
+        }
+
+        if (layer.type === 'fill') {
+          map.setPaintProperty(
+            layer.id,
+            'fill-color',
+            '#1b1b18'
+          );
+
+          map.setPaintProperty(
+            layer.id,
+            'fill-opacity',
+            0.92
+          );
+        }
+
+        /* Strassen und Grenzen */
+        if (layer.type === 'line') {
+          map.setPaintProperty(
+            layer.id,
+            'line-color',
+            '#4b4841'
+          );
+
+          map.setPaintProperty(
+            layer.id,
+            'line-opacity',
+            0.55
+          );
+        }
+
+        /* Ortsnamen und Beschriftungen */
+        if (layer.type === 'symbol') {
+          if (layer.layout && layer.layout['text-field']) {
+
+            map.setPaintProperty(
+              layer.id,
+              'text-color',
+              '#aaa59b'
+            );
+
+            map.setPaintProperty(
+              layer.id,
+              'text-halo-color',
+              '#151513'
+            );
+
+            map.setPaintProperty(
+              layer.id,
+              'text-halo-width',
+              1
+            );
+          }
+        }
+
+      } catch (e) {
+        /* Ebenen, die eine Eigenschaft nicht unterstützen,
+           werden einfach übersprungen. */
+      }
+    });
+
+    /* Beispielstandort Zürich */
+    const marker = document.createElement('div');
+    marker.className = 'luxury-marker';
+
+    new maplibregl.Marker({
+      element: marker
+    })
+      .setLngLat([8.5417, 47.3769])
+      .setPopup(
+        new maplibregl.Popup({
+          offset: 20,
+          closeButton: false
+        }).setHTML(`
+          <div class="location-title">ZÜRICH</div>
+          <div class="location-address">
+            Dein Standort<br>
+            Zürich
+          </div>
+        `)
+      )
+      .addTo(map);
+  });
 </script>
 
 </body>
