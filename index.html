@@ -4,26 +4,80 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Meine Karte</title>
+  <title>Standorte</title>
 
   <link
     href="https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.css"
     rel="stylesheet"
-  />
+  >
 
   <script src="https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.js"></script>
 
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #111111;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
     }
 
     #map {
-      position: absolute;
-      top: 0;
-      bottom: 0;
       width: 100%;
+      height: 100%;
+    }
+
+    /* Elegante Navigation */
+    .maplibregl-ctrl-group {
+      background: rgba(20, 20, 20, 0.92) !important;
+      border: 1px solid rgba(210, 190, 150, 0.25);
+      box-shadow: none !important;
+    }
+
+    .maplibregl-ctrl-group button {
+      filter: invert(1);
+      opacity: 0.75;
+    }
+
+    /* Eigener Standort-Marker */
+    .luxury-marker {
+      width: 18px;
+      height: 18px;
+      background: #c8aa72;
+      border: 3px solid #f1e5cf;
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 6px rgba(200, 170, 114, 0.16),
+        0 4px 18px rgba(0, 0, 0, 0.55);
+      cursor: pointer;
+    }
+
+    /* Popup */
+    .maplibregl-popup-content {
+      background: rgba(20, 20, 20, 0.96);
+      color: #f2eee7;
+      border: 1px solid rgba(200, 170, 114, 0.35);
+      border-radius: 4px;
+      padding: 18px 22px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    }
+
+    .maplibregl-popup-tip {
+      border-top-color: #141414 !important;
+    }
+
+    .location-title {
+      font-size: 16px;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      color: #d4ba86;
+    }
+
+    .location-address {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #d5d2cc;
     }
   </style>
 </head>
@@ -36,14 +90,42 @@
   const map = new maplibregl.Map({
     container: 'map',
 
-    style: 'https://tiles.openfreemap.org/styles/liberty',
+    /* Dunkler Kartenstil */
+    style: 'https://tiles.openfreemap.org/styles/dark',
 
+    /* Startpunkt Zürich */
     center: [8.5417, 47.3769],
 
-    zoom: 10
+    zoom: 11
   });
 
-  map.addControl(new maplibregl.NavigationControl());
+  map.addControl(
+    new maplibregl.NavigationControl(),
+    'top-right'
+  );
+
+  /* Beispiel-Standort */
+  const markerElement = document.createElement('div');
+  markerElement.className = 'luxury-marker';
+
+  new maplibregl.Marker({
+    element: markerElement
+  })
+    .setLngLat([8.5417, 47.3769])
+    .setPopup(
+      new maplibregl.Popup({
+        offset: 20,
+        closeButton: false
+      })
+      .setHTML(`
+        <div class="location-title">ZÜRICH</div>
+        <div class="location-address">
+          Dein Standort<br>
+          Zürich
+        </div>
+      `)
+    )
+    .addTo(map);
 </script>
 
 </body>
