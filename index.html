@@ -3,96 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Standorte</title>
 
   <link
     href="https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.css"
     rel="stylesheet"
   >
+
   <script src="https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.js"></script>
 
   <style>
-    html, body, #map {
+
+    html, body {
       margin: 0;
       width: 100%;
       height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont,
+                   "Helvetica Neue", Arial, sans-serif;
+      background: #f4f1eb;
     }
 
-    body {
-      background: #11110f;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    #map {
+      position: absolute;
+      inset: 0;
     }
 
-    /* Navigation */
-    .maplibregl-ctrl-group {
-      background: rgba(24, 23, 20, 0.94) !important;
-      border: 1px solid rgba(202, 174, 120, 0.28);
-      box-shadow: 0 8px 25px rgba(0,0,0,.25) !important;
+    /* Suchfeld */
+
+    .search-box {
+      position: absolute;
+      z-index: 10;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      width: min(420px, calc(100% - 40px));
+
+      background: rgba(250,248,243,.96);
+      border: 1px solid rgba(166,143,101,.40);
+      box-shadow: 0 10px 30px rgba(45,40,32,.14);
+
+      display: flex;
+      align-items: center;
     }
 
-    .maplibregl-ctrl-group button {
-      filter: invert(1);
-      opacity: .72;
+    #searchInput {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+
+      padding: 15px 18px;
+
+      font-size: 14px;
+      color: #37342f;
+      letter-spacing: .2px;
     }
 
-    /* Champagnerfarbener Standort */
-    .luxury-marker {
-      width: 14px;
-      height: 14px;
-      background: #caae78;
-      border: 2px solid #f0e3c7;
-      border-radius: 50%;
-      box-shadow:
-        0 0 0 6px rgba(202,174,120,.14),
-        0 4px 18px rgba(0,0,0,.65);
+    #searchButton {
+      border: none;
+      border-left: 1px solid rgba(166,143,101,.25);
+      background: transparent;
+
+      padding: 15px 18px;
+      cursor: pointer;
+
+      color: #9c7f4e;
+      font-size: 17px;
+    }
+
+    #searchButton:hover {
+      background: rgba(190,163,111,.08);
+    }
+
+    /* Suchergebnisse */
+
+    #results {
+      position: absolute;
+      z-index: 11;
+
+      top: 78px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      width: min(420px, calc(100% - 40px));
+
+      background: rgba(250,248,243,.98);
+      box-shadow: 0 12px 30px rgba(45,40,32,.16);
+
+      display: none;
+    }
+
+    .result-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e7e1d7;
+
+      color: #4b4740;
+      font-size: 13px;
+      line-height: 1.4;
+
       cursor: pointer;
     }
 
+    .result-item:hover {
+      background: #f1ece3;
+    }
+
+    /* Goldener Standort */
+
+    .luxury-marker {
+      width: 14px;
+      height: 14px;
+
+      background: #b99a62;
+      border: 2px solid #fffaf0;
+      border-radius: 50%;
+
+      box-shadow:
+        0 0 0 6px rgba(185,154,98,.18),
+        0 4px 14px rgba(0,0,0,.25);
+
+      cursor: pointer;
+    }
+
+    /* Gefundene Adresse */
+
+    .search-marker {
+      width: 12px;
+      height: 12px;
+
+      background: #3e3b36;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+
+      box-shadow: 0 3px 12px rgba(0,0,0,.28);
+    }
+
     /* Popup */
+
     .maplibregl-popup-content {
-      background: rgba(22,21,19,.97);
-      color: #e8e3da;
-      border: 1px solid rgba(202,174,120,.4);
-      border-radius: 3px;
-      padding: 18px 22px;
-      box-shadow: 0 14px 35px rgba(0,0,0,.5);
+      background: #faf8f3;
+      color: #47433d;
+
+      border: 1px solid rgba(185,154,98,.35);
+      border-radius: 2px;
+
+      padding: 17px 20px;
+
+      box-shadow: 0 12px 28px rgba(0,0,0,.16);
     }
 
     .location-title {
-      color: #caae78;
-      font-size: 15px;
+      color: #9c7f4e;
+      font-size: 13px;
       letter-spacing: 2px;
-      margin-bottom: 8px;
+      margin-bottom: 7px;
     }
 
     .location-address {
-      color: #d2cec5;
       font-size: 13px;
       line-height: 1.6;
     }
+
+    /* Kartensteuerung */
+
+    .maplibregl-ctrl-group {
+      background: rgba(250,248,243,.95) !important;
+      border: 1px solid rgba(185,154,98,.30);
+      box-shadow: 0 5px 18px rgba(0,0,0,.12) !important;
+    }
+
   </style>
 </head>
 
 <body>
 
-<div id="map"></div>
+  <div id="map"></div>
 
-<script>
-  const map = new maplibregl.Map({
-    container: 'map',
-    style: 'https://tiles.openfreemap.org/styles/positron',
-    center: [8.5417, 47.3769],
-    zoom: 10.5
-  });
+  <div class="search-box">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Ort oder Adresse suchen …"
+    >
+    <button id="searchButton" aria-label="Suchen">⌕</button>
+  </div>
 
-  map.addControl(
-    new maplibregl.NavigationControl(),
-    'top-right'
-  );
+  <div id="results"></div>
 
- 
 
-    /* Beispielstandort Zürich */
+  <script>
+
+    /*
+      Helle Basiskarte
+    */
+
+    const map = new maplibregl.Map({
+      container: 'map',
+
+      style:
+        'https://tiles.openfreemap.org/styles/liberty',
+
+      center: [8.5417, 47.3769],
+      zoom: 10.5
+    });
+
+
+    /*
+      Navigation
+    */
+
+    map.addControl(
+      new maplibregl.NavigationControl(),
+      'top-right'
+    );
+
+
+    /*
+      Aktuellen Standort anzeigen
+    */
+
+    map.addControl(
+      new maplibregl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: false
+      }),
+      'top-right'
+    );
+
+
+    /*
+      Unser Standort Zürich
+    */
+
     const marker = document.createElement('div');
     marker.className = 'luxury-marker';
 
@@ -113,8 +259,160 @@
         `)
       )
       .addTo(map);
- 
-</script>
+
+
+    /*
+      Adresssuche
+    */
+
+    const searchInput =
+      document.getElementById('searchInput');
+
+    const searchButton =
+      document.getElementById('searchButton');
+
+    const resultsBox =
+      document.getElementById('results');
+
+    let searchMarker = null;
+
+
+    async function searchLocation() {
+
+      const query = searchInput.value.trim();
+
+      if (!query) return;
+
+      resultsBox.innerHTML =
+        '<div class="result-item">Suche …</div>';
+
+      resultsBox.style.display = 'block';
+
+
+      try {
+
+        const url =
+          'https://nominatim.openstreetmap.org/search' +
+          '?format=json' +
+          '&limit=5' +
+          '&countrycodes=ch' +
+          '&q=' +
+          encodeURIComponent(query);
+
+        const response = await fetch(url);
+
+        const results = await response.json();
+
+
+        if (!results.length) {
+
+          resultsBox.innerHTML =
+            '<div class="result-item">Kein Standort gefunden.</div>';
+
+          return;
+        }
+
+
+        resultsBox.innerHTML = '';
+
+
+        results.forEach(place => {
+
+          const item =
+            document.createElement('div');
+
+          item.className = 'result-item';
+
+          item.textContent =
+            place.display_name;
+
+
+          item.addEventListener('click', () => {
+
+            const lng =
+              parseFloat(place.lon);
+
+            const lat =
+              parseFloat(place.lat);
+
+
+            map.flyTo({
+              center: [lng, lat],
+              zoom: 15
+            });
+
+
+            if (searchMarker) {
+              searchMarker.remove();
+            }
+
+
+            const el =
+              document.createElement('div');
+
+            el.className =
+              'search-marker';
+
+
+            searchMarker =
+              new maplibregl.Marker({
+                element: el
+              })
+                .setLngLat([lng, lat])
+                .setPopup(
+                  new maplibregl.Popup({
+                    offset: 18
+                  }).setText(
+                    place.display_name
+                  )
+                )
+                .addTo(map);
+
+
+            searchMarker.togglePopup();
+
+            resultsBox.style.display =
+              'none';
+
+            searchInput.value =
+              place.display_name;
+
+          });
+
+
+          resultsBox.appendChild(item);
+
+        });
+
+
+      } catch (error) {
+
+        resultsBox.innerHTML =
+          '<div class="result-item">Die Suche konnte nicht geladen werden.</div>';
+
+      }
+
+    }
+
+
+    searchButton.addEventListener(
+      'click',
+      searchLocation
+    );
+
+
+    searchInput.addEventListener(
+      'keydown',
+      event => {
+
+        if (event.key === 'Enter') {
+          searchLocation();
+        }
+
+      }
+    );
+
+  </script>
 
 </body>
 </html>
