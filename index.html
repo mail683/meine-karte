@@ -317,9 +317,11 @@ standorte.forEach(standort => {
       </div>
 
       <a
-        href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(standort.adresse)}"
-        target="_blank"
-        rel="noopener"
+        <a
+  href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(standort.adresse)}"
+  target="_blank"
+  rel="noopener noreferrer"
+  onclick="event.stopPropagation();"
         style="
           display:inline-block;
           margin-top:10px;
