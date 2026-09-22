@@ -80,7 +80,7 @@
 <script>
   const map = new maplibregl.Map({
     container: 'map',
-    style: 'https://tiles.openfreemap.org/styles/liberty',
+    style: 'https://tiles.openfreemap.org/styles/dark',
     center: [8.5417, 47.3769],
     zoom: 10.5
   });
@@ -90,84 +90,7 @@
     'top-right'
   );
 
-  /*
-    Sobald die Karte geladen ist, färben wir
-    die vorhandenen Ebenen in unseren Luxury-Stil.
-  */
-  map.on('load', () => {
-
-    const layers = map.getStyle().layers;
-
-    layers.forEach(layer => {
-      try {
-
-        /* Flächen */
-        if (layer.type === 'background') {
-          map.setPaintProperty(
-            layer.id,
-            'background-color',
-            '#151513'
-          );
-        }
-
-        if (layer.type === 'fill') {
-          map.setPaintProperty(
-            layer.id,
-            'fill-color',
-            '#1b1b18'
-          );
-
-          map.setPaintProperty(
-            layer.id,
-            'fill-opacity',
-            0.92
-          );
-        }
-
-        /* Strassen und Grenzen */
-        if (layer.type === 'line') {
-          map.setPaintProperty(
-            layer.id,
-            'line-color',
-            '#4b4841'
-          );
-
-          map.setPaintProperty(
-            layer.id,
-            'line-opacity',
-            0.55
-          );
-        }
-
-        /* Ortsnamen und Beschriftungen */
-        if (layer.type === 'symbol') {
-          if (layer.layout && layer.layout['text-field']) {
-
-            map.setPaintProperty(
-              layer.id,
-              'text-color',
-              '#aaa59b'
-            );
-
-            map.setPaintProperty(
-              layer.id,
-              'text-halo-color',
-              '#151513'
-            );
-
-            map.setPaintProperty(
-              layer.id,
-              'text-halo-width',
-              1
-            );
-          }
-        }
-
-      } catch (e) {
-        /* Ebenen, die eine Eigenschaft nicht unterstützen,
-           werden einfach übersprungen. */
-      }
-    });
+ 
 
     /* Beispielstandort Zürich */
     const marker = document.createElement('div');
@@ -190,7 +113,7 @@
         `)
       )
       .addTo(map);
-  });
+ 
 </script>
 
 </body>
