@@ -261,7 +261,7 @@ const standorte = [
   }
 ];
 
-
+let portierhausMarker = null;
 standorte.forEach(standort => {
 
   const markerElement =
@@ -271,7 +271,7 @@ standorte.forEach(standort => {
     'luxury-marker';
 
 
-  new maplibregl.Marker({
+  const aktuellerMarker = new maplibregl.Marker({
     element: markerElement
   })
     .setLngLat(standort.koordinaten)
@@ -338,7 +338,9 @@ standorte.forEach(standort => {
   `)
 )
 .addTo(map);
-
+if (standort.name === 'Portierhaus') {
+  portierhausMarker = aktuellerMarker;
+}
 });
 
 
@@ -357,7 +359,25 @@ map.fitBounds(bounds, {
   padding: 100,
   maxZoom: 16
 });
+/*
+  Direktlink zu einem bestimmten Standort
+*/
 
+const urlParameter =
+  new URLSearchParams(window.location.search);
+
+const ort =
+  urlParameter.get('ort');
+
+if (ort === 'portierhaus' && portierhausMarker) {
+
+  map.flyTo({
+    center: [8.45896341282276, 47.18558563679696],
+    zoom: 17
+  });
+
+  portierhausMarker.togglePopup();
+}
   
     /*
       Adresssuche
